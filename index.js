@@ -56,7 +56,6 @@ async function run() {
     app.post("/jwt", async (req, res) => {
       const user = req.body;
       const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: "1h" });
-      console.log(token);
       res
         .cookie("token", token, {
           httpOnly: true,
@@ -64,6 +63,11 @@ async function run() {
           sameSite: "none",
         })
         .send({ success: true });
+    });
+
+    app.post("/logout", (req, res) => {
+      const user = req.body;
+      res.clearCookie("token", { maxAge: 0 }).send({ success: true });
     });
 
     //GET all rooms
@@ -79,6 +83,25 @@ async function run() {
     });
 
     // bookings
+
+    // app.get("/bookings", async (req, res) => {
+    //   let query = {};
+    //   if (req.query.roomId) {
+    //     query = { roomId: req.query?.roomId };
+    //   }
+    //   const result = await bookingsCollection.find(query).toArray();
+    //   res.send(result);
+    // })
+
+    app.get("/bookings", async (req, res) => {
+      let query = {};
+      if (req.query.email) {
+        query = { email: req.query?.email };
+      }
+      const result = await bookingsCollection.find(query).toArray();
+      res.send(result);
+    });
+
     app.post("/bookings", async (req, res) => {
       const booking = req.body;
       const result = await bookingsCollection.insertOne(booking);
