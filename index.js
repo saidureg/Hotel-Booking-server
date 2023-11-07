@@ -29,9 +29,18 @@ const client = new MongoClient(uri, {
   },
 });
 
+// middlewares
+const logger = (req, res, next) => {
+  console.log("log: info", req.method, req.url);
+  next();
+};
+
 const verifyToken = (req, res, next) => {
-  const token = req.cookies.token;
+  const token = req?.cookies?.token;
   console.log("value of token in middleware", token);
+  if (!token) {
+    return res.status(401).send({ message: "Unauthorized" });
+  }
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) {
       console.log(err);
@@ -93,7 +102,10 @@ async function run() {
     //   res.send(result);
     // })
 
-    app.get("/bookings", async (req, res) => {
+    app.get("/bookings", logger, verifyToken, async (req, res) => {
+      if (req.user?.email !== req.query?.email) {
+        return res.status(403).send({ message: "Forbidden" });
+      }
       let query = {};
       if (req.query.email) {
         query = { email: req.query?.email };
