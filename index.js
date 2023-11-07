@@ -77,6 +77,14 @@ async function run() {
       const room = await roomsCollection.findOne({ _id: new ObjectId(id) });
       res.send(room);
     });
+
+    // bookings
+    app.post("/bookings", async (req, res) => {
+      const booking = req.body;
+      const result = await bookingsCollection.insertOne(booking);
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
