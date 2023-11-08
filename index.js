@@ -93,19 +93,21 @@ async function run() {
 
     // bookings
 
-    // app.get("/bookings", async (req, res) => {
-    //   let query = {};
-    //   if (req.query.roomId) {
-    //     query = { roomId: req.query?.roomId };
-    //   }
-    //   const result = await bookingsCollection.find(query).toArray();
-    //   res.send(result);
-    // })
-
-    app.get("/bookings", logger, verifyToken, async (req, res) => {
-      if (req.user?.email !== req.query?.email) {
-        return res.status(403).send({ message: "Forbidden" });
+    app.get("/booked", async (req, res) => {
+      let query = {};
+      if (req.query?.room_id) {
+        query = { room_id: req.query?.room_id };
       }
+      const result = await bookingsCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.get("/bookings", async (req, res) => {
+      console.log(req.query.email);
+      console.log("token owner info", req.user);
+      // if (req.user?.email !== req.query?.email) {
+      //   return res.status(403).send({ message: "Forbidden" });
+      // }
       let query = {};
       if (req.query.email) {
         query = { email: req.query?.email };
