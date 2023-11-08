@@ -88,8 +88,9 @@ async function run() {
 
     app.get("/rooms/:id", async (req, res) => {
       const id = req.params.id;
-      const room = await roomsCollection.findOne({ _id: new ObjectId(id) });
-      res.send(room);
+      const query = { _id: new ObjectId(id) };
+      const result = await roomsCollection.findOne(query);
+      res.send(result);
     });
 
     // bookings
@@ -117,9 +118,45 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/bookings/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await bookingsCollection.findOne(query);
+      console.log(result);
+      res.send(result);
+    });
+
     app.post("/bookings", async (req, res) => {
       const booking = req.body;
       const result = await bookingsCollection.insertOne(booking);
+      res.send(result);
+    });
+
+    app.patch("/bookings/:id", async (req, res) => {
+      const id = req.params.id;
+      const updatedProduct = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          name: updatedProduct.name,
+          phone: updatedProduct.phone,
+          date: updatedProduct.date,
+          special_request: updatedProduct.special_request,
+        },
+      };
+      const result = await bookingsCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    app.delete("/bookings/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await bookingsCollection.deleteOne(query);
       res.send(result);
     });
 
@@ -127,6 +164,16 @@ async function run() {
 
     app.get("/reviews", async (req, res) => {
       const result = await reviewsCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.get("/review", async (req, res) => {
+      console.log(req.query?.room_id);
+      let query = {};
+      if (req.query?.room_id) {
+        query = { room_id: req.query?.room_id };
+      }
+      const result = await reviewsCollection.find(query).toArray();
       res.send(result);
     });
 
