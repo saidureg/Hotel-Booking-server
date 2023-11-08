@@ -60,6 +60,7 @@ async function run() {
     const bookingsCollection = client
       .db("hotelBookingDB")
       .collection("bookings");
+    const reviewsCollection = client.db("hotelBookingDB").collection("reviews");
 
     //   AUTHENTICATION
     app.post("/jwt", async (req, res) => {
@@ -119,6 +120,19 @@ async function run() {
     app.post("/bookings", async (req, res) => {
       const booking = req.body;
       const result = await bookingsCollection.insertOne(booking);
+      res.send(result);
+    });
+
+    // reviews
+
+    app.get("/reviews", async (req, res) => {
+      const result = await reviewsCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.post("/reviews", async (req, res) => {
+      const roomReview = req.body;
+      const result = await reviewsCollection.insertOne(roomReview);
       res.send(result);
     });
 
