@@ -12,13 +12,14 @@ const port = process.env.PORT || 5000;
 app.use(
   cors({
     origin: [
-      // "http://localhost:5173"
-      "https://luxe-lair-hotel.web.app/",
-      "https://luxe-lair-hotel.firebaseapp.com/",
+      // "http://localhost:5173",
+      "https://luxe-lair-hotel.web.app",
+      "https://luxe-lair-hotel.firebaseapp.com",
     ],
     credentials: true,
   })
 );
+
 app.use(cookieParser());
 app.use(express.json());
 
@@ -61,7 +62,7 @@ const verifyToken = (req, res, next) => {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     const roomsCollection = client.db("hotelBookingDB").collection("rooms");
     const bookingsCollection = client
       .db("hotelBookingDB")
@@ -86,10 +87,10 @@ async function run() {
       console.log("cookies token", req.cookies?.token);
     });
 
-    // app.post("/logout", (req, res) => {
-    //   const user = req.body;
-    //   res.clearCookie("token", { maxAge: 0 }).send({ success: true });
-    // });
+    app.post("/logout", (req, res) => {
+      const user = req.body;
+      res.clearCookie("token", { maxAge: 0 }).send({ success: true });
+    });
 
     //GET all rooms
     app.get("/rooms", async (req, res) => {
@@ -115,13 +116,13 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/bookings", async (req, res) => {
+    app.get("/bookings", verifyToken, logger, async (req, res) => {
       // console.log(req.query?.email);
-      // // console.log("tok tok token", req.cookies?.token);
-      // console.log("user in the valid token", req.user);
-      // if (req.query.email !== req.user.email) {
-      //   return res.status(403).send({ message: "Forbidden access" });
-      // }
+      // console.log("tok tok token", req.cookies?.token);
+      console.log("user in the valid token", req.user);
+      if (req.query.email !== req.user.email) {
+        return res.status(403).send({ message: "Forbidden access" });
+      }
 
       let query = {};
       if (req.query?.email) {
